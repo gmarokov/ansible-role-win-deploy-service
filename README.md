@@ -1,34 +1,53 @@
-Role Name
+Ansible role: win_service_deploy
 =========
+[![Build Status](https://travis-ci.org/gmarokov/win_deploy_service.svg?branch=master)](https://travis-ci.org/gmarokov/win_deploy_service)
 
-A brief description of the role goes here.
+Ansible role for building and deploying Windows service using MSBuild and PSCP over SSH
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+1. Windows build server with MSBuild installed and your project's code repository checkout
+2. WinRM must be configured and running 
+2. SSHD must be installed and running as a service
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+`backups_path` - Path where the service will be backup. Default to `C:/Backups/Services/{service_name}.
+`server_ip` - Target Windows server where the service will be deployed. 
+`service_name` - Service name, display name from the Windows service settings.
+`win_service_path` - Full path where service has been installed. Default set to `C:/Services`.
+`repo_path` - This has to be delegated to the build server where the project repo is checkout and MSBuild is available. 
+`config` - Build configuration. By default is Release.
+`ansible_user` - User for the target server (server_ip).
+`ansible_password` - Password for the target server user.
 
-Dependencies
-------------
-
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
 
 Example Playbook
 ----------------
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```
+- hosts: build-server
+  vars:
+    backups_path: "C:/Backups/Services"
+    win_service_path: "C:/Services"
+    repo_path: "C:/repository"
+    ansible_user: "Administrator"
+    ansible_password: "you-super-user-password"
+  roles:
+    - role: win_service_deploy
+      vars:
+      service_name: "MyWindowsService"
+      config: "Release"
+      server_ip: "{{ groups['example-win-services-group'][0] }}"
+      tags: 
+      - win-services 
+```
 
 License
 -------
 
-BSD
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 

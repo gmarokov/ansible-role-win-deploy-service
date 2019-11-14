@@ -1,2 +1,5 @@
 ---
 # defaults file for win_deploy_service
+backups_path: "C:/Backups/Services"
+win_service_path: "C:/Services"
+config: "Release"

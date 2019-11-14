@@ -1,2 +1,61 @@
 ---
 # tasks file for win_deploy_service
+- name: Create backup path if not exist
+  delegate_to: "{{ server_ip }}"
+  win_file:
+   path: "{{ backups_path }}"
+   state: directory
+
+- name: Find old backups for "{{ service_name }}"
+  delegate_to: "{{ server_ip }}" 
+  win_find:
+   paths: "{{ backups_path }}"
+   patterns: "{{ service_name }}-*.7z"
+   age: 30d
+   use: 
+    regex: true
+  register: backup_files_to_delete
+
+- name: Remove old backups for "{{ service_name }}"
+  delegate_to: "{{ server_ip }}"
+  win_file:
+   path: "{{ i.path }}"
+   state: absent
+  with_items: "{{ backup_files_to_delete.files }}" 
+  loop_control:
+    loop_var: i
+
+- name: Create backup for "{{ service_name }}"
+  delegate_to: "{{ server_ip }}"
+  win_shell: |
+   $source = "{{ win_service_path }}/{{ service_name }}"
+   $destination = "{{ backups_path }}/{{ service_name }}-"
+   $datetime = (Get-Date).ToString("yyyy-MM-dd-HH-mm")
+   $destination = "$destination$datetime.7z"
+   Add-Type -assembly "system.io.compression.filesystem"
+   [io.compression.zipfile]::CreateFromDirectory($source,$destination)
+
+- name: Build Service "{{ service_name }}"
+  win_shell: |
+   msbuild "{{ repo_path }}/{{ service_name }}/{{ service_name }}.csproj" /p:Configuration="{{ config }}" /p:OutputPath="{{ repo_path }}/{{ service_name }}/bin/x64/{{ config }}"
+
+- name: Stop service "{{ service_name }}"
+  delegate_to: "{{ server_ip }}"
+  win_service:
+   name: "{{ service_name }}"
+   state: stopped
+
+- name: Empty service directory "{{ service_name }}"
+  delegate_to: "{{ server_ip }}"
+  win_shell: |
+   Remove-Item -Path "{{ win_service_path }}/{{ service_name }}/*" -Recurse -Force | foreach { $_.Delete()}
+
+- name: Deploy Service {{ service_name }}
+  win_shell: | 
+   pscp.exe -pw {{ ansible_password }} -r {{ repo_path }}/{{ service_name }}/bin/x64/{{ config }}/ {{ ansible_user }}@{{ server_ip }}:{{ win_service_path }}/{{ service_name }}
+
+- name: Start service "{{ service_name }}"
+  delegate_to: "{{ server_ip }}"
+  win_service:
+   name: "{{ service_name }}"
+   state: started

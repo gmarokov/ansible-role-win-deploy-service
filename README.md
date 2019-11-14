@@ -15,12 +15,19 @@ Role Variables
 --------------
 
 `backups_path` - Path where the service will be backup. Default to `C:/Backups/Services/{service_name}.
+
 `server_ip` - Target Windows server where the service will be deployed. 
+
 `service_name` - Service name, display name from the Windows service settings.
+
 `win_service_path` - Full path where service has been installed. Default set to `C:/Services`.
+
 `repo_path` - This has to be delegated to the build server where the project repo is checkout and MSBuild is available. 
+
 `config` - Build configuration. By default is Release.
+
 `ansible_user` - User for the target server (server_ip).
+
 `ansible_password` - Password for the target server user.
 
 

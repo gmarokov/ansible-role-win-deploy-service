@@ -1,6 +1,6 @@
 galaxy_info:
   author: Georgi Marokov
-  role_name: win_deploy_service
+  role_name: win_service_deploy
   description: Build and deploy Windows Service using MSBuild and PSCP over SSH
   company: worldwildweb.dev
   license: MIT

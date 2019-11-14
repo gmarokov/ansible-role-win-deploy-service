@@ -1,6 +1,6 @@
 ---
 # tasks file for win_deploy_service
-- name: Create backup path if not exist
+- name: Create backup path if doesn't exist
   delegate_to: "{{ server_ip }}"
   win_file:
    path: "{{ backups_path }}"

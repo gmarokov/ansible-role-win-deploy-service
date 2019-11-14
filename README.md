@@ -1,6 +1,6 @@
 Ansible role: win_service_deploy
 =========
-[![Build Status](https://travis-ci.org/gmarokov/win_deploy_service.svg?branch=master)](https://travis-ci.org/gmarokov/win_deploy_service)
+[![Build Status](https://travis-ci.org/gmarokov/ansible-role-win-service-deploy.svg?branch=master)](https://travis-ci.org/gmarokov/ansible-role-win-service-deploy)
 
 Ansible role for building and deploying Windows service using MSBuild and PSCP over SSH
 
